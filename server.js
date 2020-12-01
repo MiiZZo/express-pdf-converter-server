@@ -9,12 +9,9 @@ const bootstrap = async () => {
   try {
     const app = express();
     app.use(express.json());
+    app.use(cors());
 
     app.post('/', async (req, res) => {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST, PUT');
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-      res.header('Access-Controll-Max-Age', '`10000`');
       try {
         const {
           html,
