@@ -11,10 +11,15 @@ const bootstrap = async () => {
 
     app.use(cors({
       origin: '*',
-      methods: ['POST'],
-      allowedHeaders: ['Content-Type']
     }));
     app.use(express.json());
+
+    app.use(function(req, res, next) {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+      next();
+    });
 
     app.post('/', async (req, res) => {
       try {
@@ -23,10 +28,6 @@ const bootstrap = async () => {
           width,
           height
         } = req.body;
-
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-        response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 
         htmlToPdf.create(html, {
           width: `${width}px`,
