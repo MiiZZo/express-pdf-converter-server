@@ -14,9 +14,15 @@ const bootstrap = async () => {
     }));
 
     app.post('/', async (req, res) => {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST, PUT');
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+      res.setHeader('Access-Control-Allow-Credentials', true)
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      // another common pattern
+      // res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+      res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+      )
       try {
         const {
           html,
@@ -27,22 +33,22 @@ const bootstrap = async () => {
         htmlToPdf.create(html, {
           width: `${width}px`,
           height: `${height}px`,
-          
+
         }).toStream((err, pdfStream) => {
-          if (err) {   
+          if (err) {
             // handle error and return a error response code
             console.log(err)
             return res.sendStatus(500)
           } else {
             // send a status code of 200 OK
-            res.statusCode = 200             
-      
+            res.statusCode = 200
+
             // once we are done reading end the response
             pdfStream.on('end', () => {
               // done reading
               return res.end()
             });
-      
+
             // pipe the contents of the PDF directly to the response
             pdfStream.pipe(res)
           }
