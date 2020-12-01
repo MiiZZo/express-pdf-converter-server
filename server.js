@@ -8,10 +8,6 @@ const PORT = process.env.PORT | 3000;
 const bootstrap = async () => {
   try {
     const app = express();
-
-    app.use(cors({
-      origin: '*',
-    }));
     app.use(express.json());
 
     app.use(function(req, res, next) {
