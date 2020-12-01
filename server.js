@@ -12,6 +12,7 @@ const bootstrap = async () => {
     app.use(cors({
       origin: '*',
       methods: ['POST'],
+      allowedHeaders: ['Content-Type']
     }));
     app.use(express.json());
 
