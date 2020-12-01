@@ -9,9 +9,6 @@ const bootstrap = async () => {
   try {
     const app = express();
     app.use(express.json());
-    app.use(cors({
-      origin: '*'
-    }));
 
     app.post('/', async (req, res) => {
       res.setHeader('Access-Control-Allow-Credentials', true)
