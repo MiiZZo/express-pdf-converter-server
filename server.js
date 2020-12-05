@@ -1,57 +1,54 @@
 const express = require('express');
 const htmlToPdf = require('html-pdf');
+const pdfcrowd = require("pdfcrowd");
 const cors = require('cors');
-const fs = require('fs');
 
-const PORT = process.env.PORT | 3000;
+
+const PORT = process.env.PORT | 3001;
 
 const bootstrap = async () => {
   try {
+    const client = new pdfcrowd.HtmlToPdfClient("miizzo", "922cba8e1dfa5dcb80f30dd23bbe0165");
     const app = express();
     app.use(express.json());
+    app.use(cors({
+      origin: 'http://localhost:3000'
+    }));
 
-    app.post('/', async (req, res) => {
-      res.setHeader('Access-Control-Allow-Credentials', true)
+    app.post("/", (req, res) => {
+      const {
+        html,
+        width,
+        height
+      } = req.body;
 
-      res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-      res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
-      res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-      )
-      try {
-        const {
-          html,
-          width,
-          height
-        } = req.body;
+      const callbacks = pdfcrowd.sendImageInHttpResponse(
+        res, "application/pdf", "result.pdf", "attachment");
 
-        htmlToPdf.create(html, {
-          width: `${width}px`,
-          height: `${height}px`,
-
-        }).toStream((err, pdfStream) => {
-          if (err) {
-            // handle error and return a error response code
-            console.log(err)
-            return res.sendStatus(500)
-          } else {
-            // send a status code of 200 OK
-            res.statusCode = 200
-
-            // once we are done reading end the response
-            pdfStream.on('end', () => {
-              // done reading
-              return res.end()
-            });
-
-            // pipe the contents of the PDF directly to the response
-            pdfStream.pipe(res)
-          }
-        })
-      } catch (e) {
-        console.log(e);
+      callbacks.error = function (errMessage, statusCode) {
+        res.set('Content-Type', 'text/plain');
+        res.status(statusCode || 400);
+        res.send(errMessage);
       }
+
+      client.setPageWidth(`${width * 0.75}pt`);
+      client.setPageHeight(`${height * 0.75}pt`);
+      client.setNoMargins(true);
+
+      client.convertString(
+        `
+          <style>
+            @import 'https://fonts.googleapis.com/css?family=Montserrat';
+            * {
+              margin: 0px;
+              padding: 0px;
+              font-family: 'Montserrat'!important;
+            }
+          </style>
+          ${html}
+        `, 
+        callbacks
+      );
     });
 
     app.listen(PORT, () => {
