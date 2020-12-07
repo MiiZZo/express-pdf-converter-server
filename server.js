@@ -1,7 +1,8 @@
 const express = require('express');
-const htmlToPdf = require('html-pdf');
 const pdfcrowd = require("pdfcrowd");
 const cors = require('cors');
+const hexRgb = require('hex-rgb');
+const style = require('./style');
 
 
 const PORT = process.env.PORT | 3001;
@@ -19,8 +20,11 @@ const bootstrap = async () => {
       const {
         html,
         width,
-        height
+        height,
+        backgroundColor
       } = req.body;
+
+      const { red, green, blue, alpha } = hexRgb(backgroundColor);
 
       const callbacks = pdfcrowd.sendImageInHttpResponse(
         res, "application/pdf", "result.pdf", "attachment");
@@ -31,20 +35,13 @@ const bootstrap = async () => {
         res.send(errMessage);
       }
 
-      client.setPageWidth(`${width * 0.75}pt`);
-      client.setPageHeight(`${height * 0.75}pt`);
+      client.setPageWidth(`${Math.round(width * 0.75)}pt`);
+      client.setPageHeight(`${Math.round(height * 0.75)}pt`);
       client.setNoMargins(true);
 
       client.convertString(
         `
-          <style>
-            @import 'https://fonts.googleapis.com/css?family=Montserrat';
-            * {
-              margin: 0px;
-              padding: 0px;
-              font-family: 'Montserrat'!important;
-            }
-          </style>
+          ${style}
           ${html}
         `, 
         callbacks

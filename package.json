@@ -12,6 +12,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "hex-rgb": "^4.2.0",
     "html-pdf": "^2.2.0",
     "nodemon": "^2.0.6",
     "pdfcrowd": "^4.12.0"
